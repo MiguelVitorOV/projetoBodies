@@ -4,6 +4,9 @@ import { createProduct, deletarProduto, listarProdutos, atualizarProduto } from 
 import { criarUsuario, loginUsuario } from "./controllers/UserControllers";
 import multer from "multer";
 import { multerConfig } from "./multer";
+
+import { paymentMethodApi } from "./mpConfig"; //só pra teste por enquanto
+
 const router = Router();
 const upload = multer(multerConfig);
 router.post("/products", upload.single("image"), createProduct);
@@ -15,3 +18,14 @@ router.post("/login", loginUsuario);
 
 
 export default router;
+
+
+router.get('/payment-methods', async (req, Res) => {
+  try {
+    const response = await paymentMethodApi.get();  // ou .get() se for o método
+    console.log(response);  // veja no console: visa, master, pix, boleto etc.
+    Res.json(response);
+  } catch (error) {
+    Res.status(500).json(error);
+  }
+}); //so p teste pae
