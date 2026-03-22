@@ -7,6 +7,9 @@ import { multerConfig } from "./multer";
 
 import { paymentMethodApi } from "./mpConfig"; //só pra teste por enquanto
 import { criarPedido } from "./controllers/OrderControllers";
+import { webhookPedido, buscarPedido } from "./controllers/OrderControllers";
+
+
 
 const router = Router();
 const upload = multer(multerConfig);
@@ -18,6 +21,8 @@ router.post("/users", criarUsuario);
 router.post("/login", loginUsuario);
 router.get("/products/:id", buscarProdutoPorId);
 router.post("/orders", criarPedido)
+// routes.ts
+router.post('/orders/webhook', webhookPedido);
 export default router;
 
 
@@ -30,3 +35,5 @@ router.get('/payment-methods', async (req, Res) => {
     Res.status(500).json(error);
   }
 }); //so p teste pae
+
+router.get('/orders/:id', buscarPedido);        // ← NOVA

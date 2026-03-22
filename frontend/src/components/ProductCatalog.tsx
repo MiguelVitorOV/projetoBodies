@@ -3,6 +3,7 @@ import type { Product } from '../types';
 import { ProductFilters } from './ProductFilters';
 import '../css/ProductCatalog.css';
 import { useNavigate } from 'react-router-dom';
+import Header from './Header';
 
 export function ProductCatalog() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -44,7 +45,9 @@ export function ProductCatalog() {
   if (loading) return <div className="loading">Carregando coleção Bereshit...</div>;
 
   return (
+    
     <div className="catalog-container">
+      <Header/>
       <h1 className="catalog-title">Coleção Bereshit</h1>
       
       {/* Nosso componente de Filtro lindão aqui */}

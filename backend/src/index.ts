@@ -14,6 +14,8 @@ AppDataSource.initialize().then(() => {
     const caminhoDasImagens = path.resolve(process.cwd(), "..", "uploads");
     app.use("/uploads", express.static(caminhoDasImagens));
     
+app.use('/orders/webhook', express.raw({ type: 'application/json' }));
+
     app.use(express.json()); 
     app.use(routes);
 

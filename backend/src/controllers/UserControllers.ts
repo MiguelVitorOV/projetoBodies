@@ -21,9 +21,17 @@ export const criarUsuario = async (req: Request, res: Response) => {
     try {
         await schema.validate(req.body, { abortEarly: false });
         const userRepository = AppDataSource.getRepository(User);
-        const existingUser = await userRepository.findOneBy({ email });
+        const existingCpf = await userRepository.findOneBy({cpf})
+        const existingPhone = await userRepository.findOneBy({phone})
+        const existingUser = await userRepository.findOneBy({ email});
         if (existingUser) {
             return res.status(400).json({ error: "Email já está em uso" });
+        }
+        if(existingCpf){
+            return res.status(400).json({error: "Cpf ja está em uso"})
+        }
+        if(existingPhone){
+            return res.status(400).json({error:"Telefone ja está em uso!"})
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = userRepository.create({ name, email, password: hashedPassword, phone, cpf });

@@ -1,0 +1,148 @@
+/* Fundo escuro que cobre a tela toda */
+.cart-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 999;
+}
+
+/* A gaveta lateral */
+.cart-drawer {
+    position: fixed;
+    top: 0;
+    right: -400px; /* Começa escondido fora da tela */
+    width: 100%;
+    max-width: 400px; /* Largura do menu */
+    height: 100vh;
+    background-color: white;
+    box-shadow: -2px 0 15px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transition: right 0.4s ease-in-out; /* O efeito de deslizar */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Classe que é adicionada quando o isOpen for true */
+.cart-drawer.open {
+    right: 0;
+}
+
+.cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #4193ae; /* Azul Bereshit */
+    color: white;
+}
+
+.close-btn {
+    cursor: pointer;
+    font-size: 28px;
+    transition: transform 0.2s;
+}
+
+.close-btn:hover {
+    transform: scale(1.1);
+}
+
+.cart-items {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.empty-cart {
+    text-align: center;
+    color: #666;
+    margin-top: 50px;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.item-info h4 {
+    margin: 0 0 5px 0;
+    color: #333;
+}
+
+.item-info p {
+    margin: 0;
+    color: #84b37e; /* Verde Bereshit */
+    font-weight: bold;
+}
+
+.item-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.quantity-control {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.quantity-control button {
+    background: none;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #4193ae;
+}
+
+.quantity-control span {
+    padding: 0 10px;
+    font-weight: bold;
+}
+
+.remove-btn {
+    color: #c7777d; /* Rosa Bereshit */
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.cart-footer {
+    padding: 20px;
+    border-top: 1px solid #eee;
+    background-color: #f9f9f9;
+}
+
+.total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.checkout-btn {
+    width: 100%;
+    padding: 15px;
+    background-color: #84b37e; /* Verde Bereshit */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.checkout-btn:hover {
+    background-color: #729c6d;
+}

@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import type { Product } from '../types';
-import { CheckoutForm } from './CheckoutForm'; // Ajuste esse caminho!
 import '../css/ProductDetails.css';
+
+// 1. Importamos o nosso carrinho!
+import { useCart } from '../context/CartContext';
 
 export function ProductDetails() {
   const { id } = useParams<{ id: string }>(); 
   const navigate = useNavigate();
+
+  // 2. Puxamos a função de adicionar ao carrinho lá da nossa nuvem
+  const { addToCart } = useCart();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -14,9 +19,6 @@ export function ProductDetails() {
   // Estados de seleção
   const [selectedColor, setSelectedColor] = useState<string>('');
   const [selectedSize, setSelectedSize] = useState<string>('');
-  
-  // NOVO: Estado para controlar se mostramos o Checkout ou os detalhes
-  const [showCheckout, setShowCheckout] = useState(false);
 
   useEffect(() => {
     fetch(`http://localhost:3000/products/${id}`)
@@ -48,41 +50,27 @@ export function ProductDetails() {
     v => v.color === selectedColor && v.size === selectedSize
   );
 
-  // NOVO: Função que abre o checkout
-  const handleBuyNow = () => {
+  // Preço real com desconto aplicado (se houver)
+  const precoFinal = product.discount > 0 ? product.discountedPrice : product.price;
+
+  const handleAddToCart = () => {
     if (!currentVariant) {
       alert("Por favor, selecione um tamanho.");
       return;
     }
-    setShowCheckout(true); // Muda a tela para o formulário de pagamento!
+    
+    addToCart({
+      id: currentVariant.id as string, 
+      name: `${product.name} (${selectedColor} - ${selectedSize})`,
+      price: precoFinal,
+      quantity: 1,
+      imageUrl: product.imageUrl,
+      maxStock: currentVariant.stockQuantity // <-- SÓ ADICIONE ESTA LINHA AQUI!
+    });
   };
 
-  // Preço real com desconto aplicado (se houver)
-  const precoFinal = product.discount > 0 ? product.discountedPrice : product.price;
-
   // ==========================================
-  // RENDERIZAÇÃO DO CHECKOUT
-  // ==========================================
-  if (showCheckout && currentVariant) {
-    return (
-      <div className="details-container">
-        <button className="btn-back" onClick={() => setShowCheckout(false)}>
-          ← Voltar para os detalhes da peça
-        </button>
-        
-        {/* Chamando a caixinha do Mercado Pago que criamos */}
-        <CheckoutForm 
-          // ATENÇÃO: Coloque o ID de um User que REALMENTE EXISTE no seu banco de dados para testar!
-          userId="6c9f2f7f-1e62-4e6b-a8e5-f0163c3e122e" 
-          items={[{ variantId: currentVariant.id as string, quantity: 1 }]} 
-          totalAmount={precoFinal} 
-        />
-      </div>
-    );
-  }
-
-  // ==========================================
-  // RENDERIZAÇÃO DOS DETALHES DO PRODUTO (Padrão)
+  // RENDERIZAÇÃO DOS DETALHES DO PRODUTO 
   // ==========================================
   return (
     <div className="details-container">
@@ -163,9 +151,9 @@ export function ProductDetails() {
           <button 
             className="btn-add-cart" 
             disabled={!currentVariant || currentVariant.stockQuantity <= 0}
-            onClick={handleBuyNow}
+            onClick={handleAddToCart}
           >
-            {currentVariant && currentVariant.stockQuantity <= 0 ? 'Produto Esgotado' : 'Comprar Agora'}
+            {currentVariant && currentVariant.stockQuantity <= 0 ? 'Produto Esgotado' : 'Adicionar ao Carrinho'}
           </button>
         </div>
       </div>

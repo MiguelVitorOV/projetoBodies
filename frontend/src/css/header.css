@@ -1,35 +1,138 @@
-
-
-header{
+header {
     display: flex;
     justify-content: space-between;
-       background-color: white;
-       align-items: center;
-    padding: 10px;
+    background-color: white;
+    align-items: center;
+    padding: 10px 40px; /* Aumentei o padding lateral pra dar um respiro */
     height: 70px;
-}
-#user > span{
-    cursor: pointer;
-    margin-left: 20px;
-    color: #5290c7be;
-    width: 50px;
-}
-img{
-    width: 150px;
-    height: 50px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Uma sombrinha super leve embaixo do menu */
 }
 
-#containerHeader{
+/* Alterado para a cor Azul da Bereshit (#4193ae) */
+#user > span {
+    cursor: pointer;
+    margin-left: 20px;
+    color: #4193ae; 
+    transition: color 0.3s ease;
+}
+
+#user > span:hover {
+    color: #84b37e; /* Verde da Bereshit ao passar o mouse */
+}
+
+img {
+    width: 150px;
+    height: 50px;
+    object-fit: contain; /* Garante que a logo não distorça */
+}
+
+#containerHeader {
     display: flex;
     flex-direction: row;
     align-items: center;
 }
-a{
+
+a {
     margin-right: 30px;
-    color: #5290c7be;
+    color: #4193ae; /* Azul Bereshit */
     font-size: 18px;
+    text-decoration: none; /* Tira a linha debaixo dos links */
+    font-weight: 500;
+    transition: color 0.3s ease;
 }
-a:hover{
+
+a:hover {
+    /* É melhor não mudar o font-size no hover para o menu não "pular". Mudei apenas a cor. */
+    color: #84b37e; /* Verde Bereshit */
+}
+
+/* --- ESTILOS NOVOS DA AUTENTICAÇÃO --- */
+#user {
+    display: flex;
+    align-items: center;
+}
+
+.user-logged {
+    display: flex;
+    align-items: center;
+    margin-left: 20px;
+}
+
+.user-name {
+    color: #c7777d; /* Goiaba/Rosa da paleta para destacar o nome */
+    font-weight: bold;
+    margin-right: 10px;
+    font-size: 16px;
+}
+
+.logout-icon {
     font-size: 20px;
-    color: #62a4ba;
+}
+.logout-icon:hover {
+    color: #a0575d !important; /* Tom mais escuro do rosa para o hover de Sair */
+}
+
+.auth-buttons {
+    margin-left: 20px;
+}
+
+/* Botão de Entrar */
+.login-btn {
+    background-color: #4193ae;
+    color: white;
+    padding: 8px 24px;
+    border-radius: 20px; /* Botão arredondado que remete a harmonia/afeto */
+    margin-right: 0;
+}
+
+.login-btn:hover {
+    background-color: #84b37e; /* Fica verde ao passar o mouse */
+    color: white;
+}
+
+.logout-btn-container {
+    display: flex;
+    align-items: center;
+    margin-left: 15px;
+    cursor: pointer; /* A mãozinha aparece aqui! */
+    color: #c7777d; /* Rosa/Goiaba Bereshit */
+    transition: color 0.3s ease;
+}
+.logout-btn-container:hover {
+    color: #a0575d; /* Fica mais escuro */
+}
+.logout-text {
+    font-size: 16px;
+    font-weight: 500;
+    margin-left: 4px; /* Espacinho entre o ícone e a palavra "Sair" */
+}
+
+.cart-icon-container {
+    position: relative;
+    cursor: pointer;
+    color: #4193ae; /* Azul Bereshit */
+    transition: color 0.3s ease;
+}
+
+.cart-icon-container:hover {
+    color: #84b37e; /* Verde Bereshit */
+}
+
+.cart-icon {
+    font-size: 28px;
+}
+
+.cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background-color: #c7777d; /* Rosa Bereshit */
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 50%;
+    padding: 2px 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

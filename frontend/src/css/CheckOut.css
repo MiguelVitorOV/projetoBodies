@@ -1,32 +1,41 @@
-.checkout-container {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 30px;
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+.checkout-form {
+  width: 100%;
   font-family: 'Argue Demo', sans-serif;
 }
 
-.checkout-title {
-  color: #84b37e; /* Verde Bereshit */
-  text-align: center;
-  font-size: 2rem;
-  margin-bottom: 20px;
-  font-family: 'Glimmer of Light', serif;
-}
-
-.checkout-message {
+.checkout-mensagem {
   padding: 20px;
-  background-color: #e8f4f8; /* Azul claro */
-  color: #4193ae; /* Azul escuro */
+  background-color: #e8f4f8;
+  color: #4193ae;
   border-radius: 8px;
   text-align: center;
   font-weight: bold;
   font-size: 1.2rem;
 }
 
-.checkout-message.error {
+.checkout-mensagem.sucesso {
+  background-color: #f0f7ef;
+  color: #84b37e;
+}
+
+.checkout-mensagem.erro {
   background-color: #fdf2f3;
-  color: #c7777d; /* Rosa Bereshit */
+  color: #c7777d;
+}
+
+.checkout-mensagem button {
+  margin-top: 14px;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 6px;
+  background: #84b37e;
+  color: white;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-family: 'Argue Demo', sans-serif;
+  transition: background 0.2s;
+}
+
+.checkout-mensagem button:hover {
+  background: #6fa068;
 }
