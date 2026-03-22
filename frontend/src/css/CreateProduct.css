@@ -1,0 +1,93 @@
+.btn-back-form {
+  background: none;
+  border: none;
+  color: #4193ae; /* Azul */
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-size: 1rem;
+}
+
+.variants-section {
+  background-color: #fff;
+  border: 1px solid #eee;
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 25px;
+}
+
+.variants-section h3 {
+  color: #c7777d; /* Rosa */
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.color-group-box {
+  background-color: #f9f9f9;
+  border-left: 4px solid #84b37e; /* Verde Bereshit */
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+}
+
+.color-input-group {
+  margin-bottom: 15px !important;
+}
+
+.sizes-container {
+  padding-left: 15px;
+  border-left: 2px dashed #ddd;
+}
+
+.sizes-label {
+  display: block;
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.size-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.size-row input {
+  flex: 1;
+}
+
+.btn-add-size {
+  background: none;
+  border: 1px dashed #84b37e;
+  color: #84b37e;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-top: 5px;
+}
+
+.btn-add-size:hover {
+  background-color: #f0f7f0;
+}
+
+.btn-add-color {
+  width: 100%;
+  background: none;
+  border: 2px dashed #4193ae;
+  color: #4193ae;
+  padding: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 6px;
+  margin-top: 10px;
+}
+
+.btn-add-color:hover {
+  background-color: #e8f4f8;
+}
+select{
+  width: 150px;
+  text-align: center;
+  height: 40px;
+}

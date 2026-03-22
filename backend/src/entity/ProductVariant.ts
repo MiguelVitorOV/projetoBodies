@@ -14,6 +14,6 @@ export class ProductVariant {
     @Column()
     stockQuantity: number; 
 
-    @ManyToOne(() => Product, (product) => product.variants)
+    @ManyToOne(() => Product, (product) => product.variants, {onDelete:"CASCADE"})
     product: Product;
 }

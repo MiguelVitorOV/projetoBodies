@@ -5,65 +5,101 @@ import { Request, Response } from "express";
 import { OrderItem } from "../entity/OrderItem";
 import { ProductVariant } from "../entity/ProductVariant";
 import { item, orderItems, productVariant } from "../types/entityTypes";
+import { MercadoPagoConfig, Payment } from 'mercadopago';
 
-
-
+// 2. Inicializamos o cliente com o seu Token do Mercado Pago (que fica no .env)
+const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACESS_TOKEN as string });
 
 export const criarPedido = async (req: Request, res: Response) => {
-    const { userId, items} = req.body as {userId:string, items:item[]};
+    // 3. Recebemos os items E os dados de pagamento (formData) que o React vai mandar
+    const { userId, items, paymentData } = req.body;
+    
     const orderRepository = AppDataSource.getRepository(Order);
     const userRepository = AppDataSource.getRepository(User);
     const variantRepository = AppDataSource.getRepository(ProductVariant);
+    
     try {
+
         const user = await userRepository.findOneBy({ id: userId });
-        if (!user) {
-            return res.status(404).json({ error: "Usuário não encontrado" });
-        }
+        if (!user) return res.status(404).json({ error: "Usuário não encontrado" });
 
         const orderItems: OrderItem[] = [];
-        // Procurar promise.all
-        const buscasNoBanco = items.map((item)=>{
-            return variantRepository.findOne({
-                where: {id: item.variantId},
-                relations: ["product"]
-            })
-        })
-
-        const variantesEncontradas = await Promise.all(buscasNoBanco)
-
-
+        const buscasNoBanco = items.map((item: item) => variantRepository.findOne({ where: { id: item.variantId }, relations: ["product"] }));
+        const variantesEncontradas = await Promise.all(buscasNoBanco);
+        
         let total = 0;
 
-        for(let i = 0; i < items.length; i++){
-            const itemPedido = items[i]
-            const variant = variantesEncontradas[i]
-            
-        
-            if(!variant){
-                return res.status(404).json({error: `Variante id: ${itemPedido.variantId} não encontrada!`})
-            }
+        // 4. Calculamos o Total real no servidor (Nunca confie no total que vem do Frontend, o usuário pode alterar no navegador!)
+        for (let i = 0; i < items.length; i++) {
+            const itemPedido = items[i];
+            const variant = variantesEncontradas[i];
 
-            if(variant.stockQuantity < itemPedido.quantity){
-                return res.status(400).json({error:`Estoque insuficiente para o produto ${variant.product.name}`})
-            }
+            if (!variant) return res.status(404).json({ error: `Variante não encontrada!` });
+            if (variant.stockQuantity < itemPedido.quantity) return res.status(400).json({ error: `Estoque insuficiente` });
 
-            const orderItem = new OrderItem()
-            orderItem.variant = variant
-            orderItem.quantity = itemPedido.quantity
-            orderItem.price = variant.product.discountedPrice
+            const precoReal = Number(variant.product.price);
+            const desconto = Number(variant.product.discount || 0);
+            const precoFinal = precoReal - (precoReal * (desconto / 100));
 
-            orderItems.push(orderItem)
+            const orderItem = new OrderItem();
+            orderItem.variant = variant;
+            orderItem.quantity = itemPedido.quantity;
+            orderItem.price = precoFinal;
 
-            total += orderItem.price * itemPedido.quantity
+            orderItems.push(orderItem);
+            total += orderItem.price * itemPedido.quantity;
         }
 
+        // 5. Salva o pedido como PENDENTE no banco primeiro (caso dê erro no cartão, o pedido fica salvo)
+        let order = orderRepository.create({ user, total, items: orderItems, status: "PENDING" });
+        order = await orderRepository.save(order);
 
-        const order = orderRepository.create({ user,total , items: orderItems, status: "PENDING" });
-        await orderRepository.save(order);
-        res.status(201).json(order);
-    }
-    catch (error) {
-        res.status(500).json({ error: "Erro ao criar pedido" });
+        // 6. A HORA DA VERDADE: Efetuar a cobrança no Mercado Pago
+        const payment = new Payment(client);
+        const mpResponse = await payment.create({
+            body: {
+                transaction_amount: total, // O valor exato que calculamos
+                token: paymentData.token, // O Token seguro do cartão
+                description: `Compra Bereshit - Pedido ${order.id}`,
+                installments: paymentData.installments, // Quantidade de parcelas
+                payment_method_id: paymentData.payment_method_id, // Ex: 'visa', 'master', 'pix'
+                issuer_id: paymentData.issuer_id,
+                payer: {
+                    email: paymentData.payer.email,
+                    identification: paymentData.payer.identification // CPF do comprador
+                }
+            }
+        });
+
+
+        // 7. Avalia a resposta do Mercado Pago
+        if (mpResponse.status === 'approved') {
+            // Se aprovou, atualizamos o status para PAGO e abatemos o estoque!
+            order.status = "PAGO";
+            
+            // Abatendo o estoque igual você fez na sua rota de atualizarStatus
+            for (const item of orderItems) {
+                item.variant.stockQuantity -= item.quantity;
+                await variantRepository.save(item.variant);
+            }
+            
+            await orderRepository.save(order);
+        } else if (mpResponse.status === 'rejected') {
+            order.status = "REJEITADO";
+            await orderRepository.save(order);
+            // Retorna erro 400 avisando que o cartão não passou
+            return res.status(400).json({ error: "Pagamento recusado pela operadora do cartão." });
+        }
+
+        // 8. Devolve sucesso!
+        res.status(201).json({ 
+            message: "Pedido e Pagamento realizados com sucesso!", 
+            order: order 
+        });
+
+    } catch (error) {
+        console.error("Erro no checkout:", error);
+        res.status(500).json({ error: "Erro ao processar o pagamento." });
     }
 }
 

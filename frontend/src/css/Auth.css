@@ -1,0 +1,99 @@
+/* Auth.css - Usado no Login e no Cadastro */
+
+.auth-container {
+  max-width: 400px;
+  margin: 60px auto;
+  padding: 30px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  font-family: 'Argue Demo', sans-serif;
+}
+
+.auth-title {
+  text-align: center;
+  color: #4193ae; /* Azul Bereshit */
+  font-size: 2rem;
+  margin-bottom: 25px;
+  font-family: 'Glimmer of Light', serif;
+}
+
+.auth-title.green {
+  color: #84b37e; /* Verde Bereshit para diferenciar o Cadastro */
+}
+
+.auth-error {
+  color: #c7777d; /* Rosa Bereshit para erros */
+  background-color: #fdf2f3;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.auth-input {
+  padding: 12px 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  outline: none;
+}
+
+.auth-input:focus {
+  border-color: #4193ae;
+}
+
+.auth-button {
+  padding: 14px;
+  background-color: #4193ae; /* Azul padrão */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.auth-button:hover {
+  background-color: #327a92;
+}
+
+.auth-button.green {
+  background-color: #84b37e; /* Botão verde para o Login */
+}
+
+.auth-button.green:hover {
+  background-color: #6d9c67;
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 25px;
+  font-size: 0.95rem;
+  color: #666;
+}
+
+.auth-link {
+  color: #4193ae;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+.auth-link:hover {
+  color: #c7777d; /* Fica rosa ao passar o mouse */
+  text-decoration: underline;
+}

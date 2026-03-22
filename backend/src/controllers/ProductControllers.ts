@@ -77,11 +77,43 @@ export const deletarProduto = async (req: Request, res: Response) => {
         const product = await productRepository.findOne({ where: { id: id as string}, relations: ["variants"] });
         if (!product) return res.status(404).json({ error: "Produto não encontrado" });
         await productRepository.remove(product);
-        res.status(204).json({ message: "Produto deletado com sucesso" });
+        res.status(200).json({ message: "Produto deletado com sucesso" });
     } catch (error) {
         res.status(500).json({ error: "Erro ao deletar produto" });
     }   
 }
+export const buscarProdutoPorId = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const productRepository = AppDataSource.getRepository(Product);
+
+    try {
+        const product = await productRepository.findOne({ 
+            where: { id: id as string }, 
+            relations: ["variants"] 
+        });
+
+        if (!product) {
+            return res.status(404).json({ error: "Produto não encontrado" });
+        }
+
+        // Fazendo o mesmo cálculo de desconto que você fez no listarProdutos
+        const precoReal = Number(product.price);
+        const descontoReal = Number(product.discount || 0);
+        const precoCalculado = precoReal - (precoReal * (descontoReal / 100));
+
+        const produtoFormatado = {
+            ...product,
+            price: precoReal,
+            discount: descontoReal,
+            discountedPrice: precoCalculado
+        };
+
+        res.json(produtoFormatado);
+    } catch (error) {
+        console.error("Erro ao buscar produto por ID:", error);
+        res.status(500).json({ error: "Erro ao buscar produto" });
+    }
+};
 
 export const listarProdutos = async (req: Request, res: Response) => {
     const productRepository = AppDataSource.getRepository(Product);

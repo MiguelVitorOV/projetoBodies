@@ -1,0 +1,65 @@
+.filters-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center; /* Centraliza no eixo Y */
+  justify-content: flex-start;
+  gap: 24px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 200px;
+  max-width: 350px;
+  height: 42px; /* Forçamos uma altura fixa */
+  margin: 0; /* Mata qualquer margem fantasma do navegador */
+  padding: 0 15px; /* Padding apenas nas laterais agora */
+  border: 1px solid #ccc;
+  border-radius: 21px; /* Metade da altura para ficar redondinho */
+  outline: none;
+  font-family: inherit;
+  box-sizing: border-box; /* Garante que a borda não aumente o tamanho final */
+  transition: border-color 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: #4193ae;
+}
+
+.size-filters {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  height: 42px; /* Mesma altura exata da barra de busca */
+}
+
+.size-btn {
+  height: 42px; /* Mesma altura exata */
+  margin: 0; /* Mata margens fantasmas */
+  padding: 0 16px;
+  border: 1px solid #84b37e;
+  background-color: transparent;
+  color: #84b37e;
+  border-radius: 21px;
+  cursor: pointer;
+  font-weight: bold;
+  white-space: nowrap;
+  box-sizing: border-box;
+  
+  /* Flexbox DENTRO do botão para o texto ficar perfeitamente no meio */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.size-btn:hover {
+  background-color: #f0f7f0;
+}
+
+.size-btn.active {
+  background-color: #84b37e;
+  color: white;
+}
