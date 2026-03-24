@@ -13,7 +13,7 @@ export function ProductDetails() {
   const { isAuthenticated } = useAuth();
   // 2. Puxamos a função de adicionar ao carrinho lá da nossa nuvem
   const { addToCart } = useCart();
-
+  const API_URL = import.meta.env.VITE_API_URL;
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -22,7 +22,7 @@ export function ProductDetails() {
   const [selectedSize, setSelectedSize] = useState<string>('');
 
   useEffect(() => {
-    fetch(`http://localhost:3000/products/${id}`)
+    fetch(`${API_URL}/products/${id}`)
       .then(res => {
         if (!res.ok) throw new Error("Produto não encontrado");
         return res.json();

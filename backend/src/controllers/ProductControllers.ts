@@ -48,7 +48,7 @@ export const createProduct = async (req: Request, res: Response) => {
 
         await schema.validate(productData, { abortEarly: false });
 
-        const baseUrl = process.env.APP_URL || 'http://localhost:3000';
+        const baseUrl = process.env.APP_URL;
         const imageUrl = `${baseUrl}/uploads/${file.filename}`;
 
         const productRepository = AppDataSource.getRepository(Product);
@@ -185,7 +185,7 @@ export const atualizarProduto = async (req: Request, res: Response) => {
         const file = req.file;
         if (file) {
 
-            const baseUrl = process.env.APP_URL || 'http://localhost:3000';
+            const baseUrl = process.env.APP_URL;
             imageUrl = `${baseUrl}/uploads/${file.filename}`;
           
         }

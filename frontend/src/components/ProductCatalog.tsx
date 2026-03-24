@@ -7,13 +7,13 @@ import { useNavigate } from 'react-router-dom';
 export function ProductCatalog() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const API_URL = import.meta.env.VITE_API_URL;
   // Estados dos nossos filtros
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSize, setSelectedSize] = useState('Todos');
   const navigate = useNavigate();
   useEffect(() => {
-    fetch('http://localhost:3000/products')
+    fetch(`${API_URL}/products`)
       .then(res => res.json())
       .then(data => {
         setProducts(data);

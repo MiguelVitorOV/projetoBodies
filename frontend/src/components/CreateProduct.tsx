@@ -20,7 +20,7 @@ export function CreateProduct() {
   const [price, setPrice] = useState('');
   const [discount, setDiscount] = useState('');
   const [image, setImage] = useState<File | null>(null);
-  
+  const API_URL = import.meta.env.VITE_API_URL;
   // Agora agrupamos por cor!
   const [colorGroups, setColorGroups] = useState<ColorGroup[]>([
     { color: '', sizes: [{ size: 'P', stockQuantity: 0 }] }
@@ -79,7 +79,7 @@ export function CreateProduct() {
     formData.append('variants', JSON.stringify(flattenedVariants));
 
     try {
-      const response = await fetch('http://localhost:3000/products', {
+      const response = await fetch(`${API_URL}/products`, {
         method: 'POST',
         body: formData,
       });

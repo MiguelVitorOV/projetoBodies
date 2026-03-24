@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext'; // <-- IMPORTANTE: Puxando o c
 export default function LoginComponent() {
   const navigate = useNavigate();
   const { login } = useAuth(); // <-- Pegamos a função login de dentro da "nuvem"
-  
+  const API_URL = import.meta.env.VITE_API_URL;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [erro, setErro] = useState('');
@@ -16,7 +16,7 @@ export default function LoginComponent() {
     setErro('');
 
     try {
-      const response = await fetch('http://localhost:3000/login', {
+      const response = await fetch(`${API_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })

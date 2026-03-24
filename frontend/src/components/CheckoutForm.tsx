@@ -26,7 +26,7 @@ export function CheckoutForm({ userId, items, totalAmount }: CheckoutProps) {
   const { token } = useAuth();
   const initialization = { amount: totalAmount };
   const aprovado = useRef(false); // ← evita disparar clearCart mais de uma vez
-
+  const API_URL = import.meta.env.VITE_API_URL;
   const customization = {
     paymentMethods: {
       creditCard: 'all' as 'all',
@@ -39,7 +39,7 @@ export function CheckoutForm({ userId, items, totalAmount }: CheckoutProps) {
 
     const intervalo = setInterval(async () => {
       try {
-        const res = await fetch(`http://localhost:3000/orders/${orderId}`);
+        const res = await fetch(`${API_URL}/orders/${orderId}`);
         const order = await res.json();
 
         if (order.status === 'PAGO' && !aprovado.current) {
@@ -60,7 +60,7 @@ export function CheckoutForm({ userId, items, totalAmount }: CheckoutProps) {
     try {
       setMensagem('Processando pagamento... Não feche a tela!');
 
-      const response = await fetch('http://localhost:3000/orders', {
+      const response = await fetch(`${API_URL}/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

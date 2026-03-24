@@ -10,6 +10,8 @@ export default function CadastroComponent() {
   });
   const [erro, setErro] = useState('');
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   const formatarDocumento = (valor: string) => {
     const nums = valor.replace(/\D/g, '').slice(0, tipoPessoa === 'PF' ? 11 : 14);
     if (tipoPessoa === 'PF') {
@@ -50,7 +52,7 @@ export default function CadastroComponent() {
     };
 
     try {
-      const response = await fetch('http://localhost:3000/users', {
+      const response = await fetch(`${API_URL}/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
