@@ -23,17 +23,8 @@ router.get("/products/:id", buscarProdutoPorId);
 router.post("/orders", authMiddleware, criarPedido)
 // routes.ts
 router.post('/orders/webhook', webhookPedido);
+router.get('/orders/:id', buscarPedido);        // ← NOVA
 export default router;
 
 
-router.get('/payment-methods', async (req, Res) => {
-  try {
-    const response = await paymentMethodApi.get();  // ou .get() se for o método
-    console.log(response);  // veja no console: visa, master, pix, boleto etc.
-    Res.json(response);
-  } catch (error) {
-    Res.status(500).json(error);
-  }
-}); //so p teste pae
 
-router.get('/orders/:id', buscarPedido);        // ← NOVA

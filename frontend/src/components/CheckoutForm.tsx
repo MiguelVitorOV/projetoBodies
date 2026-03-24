@@ -124,7 +124,7 @@ export function CheckoutForm({ userId, items, totalAmount }: CheckoutProps) {
         <p>⚡ Pix gerado! Escaneie o QR Code abaixo:</p>
 
         <img
-          src={`data:image/png;base64,${pixData.qr_code_base64}`}
+          src={`data:image/jpeg;base64,${pixData.qr_code_base64}`}
           alt="QR Code Pix"
           style={{ width: 200, height: 200, margin: '16px auto', display: 'block' }}
         />
