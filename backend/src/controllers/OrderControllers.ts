@@ -6,14 +6,13 @@ import { OrderItem } from "../entity/OrderItem";
 import { ProductVariant } from "../entity/ProductVariant";
 import { item, orderItems, productVariant } from "../types/entityTypes";
 import crypto from 'crypto';
-import { MercadoPagoConfig, Order as MPOrder, Payment} from 'mercadopago';  // Comente Order
+import { MercadoPagoConfig, Order as MPOrder, Payment} from 'mercadopago'; 
 import { enviarMensagemPedido } from '../services/whatsappService';
-// Use só ordersApi.create()
 const client = new MercadoPagoConfig({ accessToken: process.env.MP_BLA! });
 const ordersApi = new MPOrder(client);
 
 export const criarPedido = async (req: Request, res: Response) => {
-    // 3. Recebemos os items E os dados de pagamento (formData) que o React vai mandar
+   
     const { userId, items, paymentData } = req.body;
     
     const orderRepository = AppDataSource.getRepository(Order);
@@ -31,7 +30,6 @@ export const criarPedido = async (req: Request, res: Response) => {
         
         let total = 0;
 
-        // 4. Calculamos o Total real no servidor (Nunca confie no total que vem do Frontend, o usuário pode alterar no navegador!)
         for (let i = 0; i < items.length; i++) {
             const itemPedido = items[i];
             const variant = variantesEncontradas[i];
@@ -52,28 +50,27 @@ export const criarPedido = async (req: Request, res: Response) => {
             total += orderItem.price * itemPedido.quantity;
         }
 
-        // 5. Salva o pedido como PENDENTE no banco primeiro (caso dê erro no cartão, o pedido fica salvo)
+       
         let order = orderRepository.create({ user, total, items: orderItems, status: "PENDING" });
         order = await orderRepository.save(order);
 
-        // 6. A HORA DA VERDADE: Efetuar a cobrança no Mercado Pago
-        
         const idempotencyKey = crypto.randomUUID(); 
 
         const mpBody = {
   type: "online",
-  processing_mode: "automatic",  // ← CHAVE: modo Transparente oficial
+  processing_mode: "automatic", 
   external_reference: `order_${order.id}`,
-  total_amount: Number(total).toFixed(2),  // MP quer decimal
-  payer: paymentData.payer,  // Já vem perfeito do React
+  total_amount: Number(total).toFixed(2), 
+  payer: paymentData.payer,  
   transactions: {
     payments: [{
+
         amount: Number(total).toFixed(2),
         payment_method: paymentData.payment_method_id === 'pix'
             ? {
                 id: "pix",
                 type: "bank_transfer"
-                // sem token, sem installments!
+                
             }
             : {
                 id: paymentData.payment_method_id,
@@ -85,21 +82,20 @@ export const criarPedido = async (req: Request, res: Response) => {
 }
 };
 
-const mpResponse = await ordersApi.create({  // ← ordersApi = seu MPOrder(client)
+const mpResponse = await ordersApi.create({ 
   body: mpBody,
   requestOptions: { idempotencyKey }
 });
 console.log("MP RESPONSE:", JSON.stringify(mpResponse, null, 2));
 
 
-console.log("STATUS RECEBIDO:", mpResponse.status); // O que aparece aqui?
+console.log("STATUS RECEBIDO:", mpResponse.status);
 console.log("É processed?", mpResponse.status === 'processed');
-        // 7. Avalia a resposta do Mercado Pago
+   
         if (mpResponse.status === 'approved' || mpResponse.status === 'processed') {
-            // Se aprovou, atualizamos o status para PAGO e abatemos o estoque!
-            order.status = "PAGO";
             
-            // Abatendo o estoque igual você fez na sua rota de atualizarStatus
+            
+            
             for (const item of orderItems) {
     const variantAtualizada = await variantRepository.findOne({
         where: { id: item.variant.id }
@@ -113,11 +109,11 @@ console.log("É processed?", mpResponse.status === 'processed');
             await orderRepository.save(order);
             await enviarMensagemPedido(order);
         } else if (mpResponse.status === 'action_required') {
-    // ← PIX entra aqui! Aguardando pagamento
+ 
     order.status = "PENDING";
     await orderRepository.save(order);
 
-    // Retorna QR pro React mostrar
+
     const pixData = mpResponse.transactions?.payments?.[0]?.payment_method;
     return res.status(200).json({
         message: "Pix gerado! Aguardando pagamento.",
@@ -129,11 +125,10 @@ console.log("É processed?", mpResponse.status === 'processed');
   }  else if (mpResponse.status === 'rejected') {
             order.status = "REJEITADO";
             await orderRepository.save(order);
-            // Retorna erro 400 avisando que o cartão não passou
+           
             return res.status(400).json({ error: mpResponse.status_detail });
         }
 
-        // 8. Devolve sucesso!
         res.status(201).json({ 
             message: "Pedido e Pagamento realizados com sucesso!", 
             order: order 
@@ -141,7 +136,7 @@ console.log("É processed?", mpResponse.status === 'processed');
 
     } catch (error) {
         console.log("ERRO COMPLETO:", JSON.stringify(error, null, 2));
-  // Expande o details que fica em error.cause ou error.details
+ 
   console.log("DETAILS:", JSON.stringify(error?.cause, null, 2));
   res.status(500).json({ 
     error: "Erro ao processar o pagamento.",
@@ -227,7 +222,7 @@ export const atualizarStatusPedido = async (req: Request, res: Response) => {
 
 
 export const webhookPedido = async (req: Request, res: Response) => {
-    // Converte o Buffer para JSON
+  
     const body = req.body instanceof Buffer 
         ? JSON.parse(req.body.toString()) 
         : req.body;

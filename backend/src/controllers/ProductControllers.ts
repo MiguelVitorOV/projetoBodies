@@ -75,7 +75,7 @@ export const deletarProduto = async (req: Request, res: Response) => {
     const productRepository = AppDataSource.getRepository(Product);
 
     try {
-        // 1. Verificação de existência (usando apenas o ID para ser mais leve)
+     
         const product = await productRepository.findOneBy({ id: id as any });
 
         if (!product) {
@@ -85,7 +85,7 @@ export const deletarProduto = async (req: Request, res: Response) => {
 
         return res.status(200).json({ message: "Produto deletado com sucesso" });
     } catch (error) {
-        console.error("Erro ao deletar:", error); // Logar o erro ajuda no debug
+        console.error("Erro ao deletar:", error); 
         return res.status(500).json({ error: "Erro interno ao deletar produto" });
     } 
 };
@@ -103,7 +103,7 @@ export const buscarProdutoPorId = async (req: Request, res: Response) => {
             return res.status(404).json({ error: "Produto não encontrado" });
         }
 
-        // Fazendo o mesmo cálculo de desconto que você fez no listarProdutos
+        
         const precoReal = Number(product.price);
         const descontoReal = Number(product.discount || 0);
         const precoCalculado = precoReal - (precoReal * (descontoReal / 100));
@@ -128,7 +128,7 @@ export const listarProdutos = async (req: Request, res: Response) => {
         const products = await productRepository.find({ relations: ["variants"] });
         
         const produtosComDesconto = products.map(product => {
-            // FORÇANDO TUDO A SER NÚMERO!
+          
             const precoReal = Number(product.price);
             const descontoReal = Number(product.discount || 0);
             
@@ -142,7 +142,7 @@ export const listarProdutos = async (req: Request, res: Response) => {
             };
         });
         
-        // O NOSSO ESPIÃO: Vai imprimir no terminal do backend o primeiro produto
+      
         console.log("ESPIÃO DO BACKEND:", produtosComDesconto[0]);
         
         res.json(produtosComDesconto);
