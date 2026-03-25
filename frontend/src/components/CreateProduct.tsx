@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/CreateProduct.css';
+import { useAuth } from '../context/AuthContext';
 
 // Estado local para facilitar a digitação na tela
 interface SizeStock {
@@ -21,6 +22,16 @@ export function CreateProduct() {
   const [discount, setDiscount] = useState('');
   const [image, setImage] = useState<File | null>(null);
   const API_URL = import.meta.env.VITE_API_URL;
+  const { token, user, isAuthenticated } = useAuth();
+
+ useEffect(() => {
+    if (!isAuthenticated || user?.role !== 'admin') {
+      alert("Acesso restrito a administradores.");
+      navigate('/'); 
+      return; 
+    }
+  }, [isAuthenticated, user, navigate]);
+
   // Agora agrupamos por cor!
   const [colorGroups, setColorGroups] = useState<ColorGroup[]>([
     { color: '', sizes: [{ size: 'P', stockQuantity: 0 }] }
@@ -78,9 +89,13 @@ export function CreateProduct() {
     formData.append('image', image);
     formData.append('variants', JSON.stringify(flattenedVariants));
 
-    try {
+    try { 
+      console.log({token})
       const response = await fetch(`${API_URL}/products`, {
         method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}` 
+          },
         body: formData,
       });
 

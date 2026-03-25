@@ -11,7 +11,6 @@ export function AdminPanel() {
   const { user, isAuthenticated, token } = useAuth(); 
 
   useEffect(() => {
-    console.log(token)
     if (!isAuthenticated || user?.role !== 'admin') {
       alert("Acesso restrito a administradores.");
       navigate('/'); 

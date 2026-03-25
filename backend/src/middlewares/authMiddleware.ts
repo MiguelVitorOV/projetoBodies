@@ -35,11 +35,17 @@ export const authMiddleware = async (req:Request, res:Response, next:NextFunctio
 
 
 export const adminMiddleware = async (
+    
     req: Request, 
     res: Response, 
     next: NextFunction
 ) => {
     const user = (req as any).user;
+
+    // ✅ Proteção contra undefined
+    if (!user) {
+        return res.status(401).json({ message: "Autenticação requerida" });
+    }
 
     if (user.role !== 'admin') {
         return res.status(403).json({ message: "Acesso negado: Apenas administradores" });
