@@ -222,3 +222,41 @@
         gap: 10px;
     }
 }
+
+.image-preview {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid #eee;
+    margin-top: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.image-preview:hover {
+    border-color: #84b37e;
+    transform: scale(1.02);
+}
+
+/* Remove required vermelho no EDIT */
+.form-group input:invalid:not(:placeholder-shown),
+.form-group input[required=""] {
+    border-color: #c7777d;
+}
+/* Remove bordas vermelhas no EDIT */
+.product-form input:invalid {
+    border-color: #eee !important;  /* Ignora validação visual */
+}
+
+.product-form input[required] {
+    border-color: #eee;  /* Borda normal */
+}
+
+/* Só mostra erro quando usuário digita errado */
+.product-form input:invalid:placeholder-shown {
+    border-color: #eee;
+}
+
+.product-form input:focus:invalid {
+    border-color: #84b37e;  /* Verde no foco, mesmo com required */
+}

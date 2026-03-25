@@ -95,12 +95,7 @@ export function AdminPanel() {
                     </span>
                   </td>
                   <td className="admin-actions">
-                    <button 
-                      className="btn-edit-admin" 
-                      onClick={() => alert("Logo vamos conectar isso na tela de edição!")}
-                    >
-                      Editar
-                    </button>
+                    <button onClick={() => navigate(`/cadastroProduct/${product.id}`)}>Editar</button>
                     <button 
                       className="btn-delete-admin" 
                       onClick={() => handleDelete(product.id as string)}

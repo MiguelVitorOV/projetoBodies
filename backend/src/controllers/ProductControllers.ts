@@ -154,61 +154,66 @@ export const listarProdutos = async (req: Request, res: Response) => {
 
 
 export const atualizarProduto = async (req: Request, res: Response) => {
-    const { id } = req.params;
+  const { id } = req.params;
+  const { name, description, price, variants, discount } = req.body;
 
-    const { name, description, price, variants, discount } = req.body as ProductRequestDTO;
-    
-    const productRepository = AppDataSource.getRepository(Product);
+  const productRepository = AppDataSource.getRepository(Product);
+  const variantRepository = AppDataSource.getRepository(ProductVariant);
 
-    try {
+  try {
+    const product = await productRepository.findOne({
+      where: { id: id as string },
+      relations: ["variants"]
+    });
 
-        const product = await productRepository.findOne({
-            where: { id: id as string },
-            relations: ["variants"]
-        });
-
-        if (!product) {
-            return res.status(404).json({ error: "Produto não encontrado" });
-        }
-
-
-        let parsedVariants = product.variants; 
-        if (variants) { 
-            try {
-                parsedVariants = JSON.parse(variants);
-            } catch (e) {
-                return res.status(400).json({ error: "Formato de variantes inválido" });
-            }
-        }
-
-        let imageUrl = product.imageUrl; 
-        const file = req.file;
-        if (file) {
-
-            const baseUrl = process.env.APP_URL;
-            imageUrl = `${baseUrl}/uploads/${file.filename}`;
-          
-        }
-
-        const updatedData = {
-            name: name || product.name,
-            description: description || product.description,
-            price: price ? parseFloat(price) : product.price,
-            discount: discount ? parseFloat(discount) : product.discount,
-            variants: parsedVariants,
-            imageUrl: imageUrl
-        };
-
-        productRepository.merge(product, updatedData);
-        
-        await productRepository.save(product);
-        res.json(product);
-
-    } catch (error) {
-        if (error instanceof yup.ValidationError) {
-            return res.status(400).json({ errors: error.errors });
-        }
-        console.error(error);
-        res.status(500).json({ error: "Erro ao atualizar produto" });
+    if (!product) {
+      return res.status(404).json({ error: "Produto não encontrado" });
     }
+
+    // ✅ MERGE campos simples
+    let imageUrl = product.imageUrl;
+    if (req.file) {
+      imageUrl = `${process.env.APP_URL || 'http://localhost:3000'}/uploads/${req.file.filename}`;
+    }
+
+    productRepository.merge(product, {
+      name: name || product.name,
+      description: description || product.description,
+      price: price ? parseFloat(price) : product.price,
+      discount: discount ? parseFloat(discount) : product.discount,
+      imageUrl
+    });
+
+    // ✅ SALVA PRODUTO PRIMEIRO (gera product.id)
+    await productRepository.save(product);
+
+    // ✅ APAGA variants antigos
+    await variantRepository.delete({ product: { id: product.id } });
+
+    // ✅ CRIA variants NOVOS (com product.id correto)
+    if (variants) {
+      const parsedVariants = JSON.parse(variants);
+      for (const vData of parsedVariants) {
+        const newVariant = variantRepository.create({
+          color: vData.color,
+          size: vData.size,
+          stockQuantity: vData.stockQuantity,
+          product: product  // ← REFERÊNCIA ao produto salvo
+        });
+        await variantRepository.save(newVariant);
+      }
+    }
+
+    // ✅ Recarrega com variants novos
+    const productCompleto = await productRepository.findOne({
+      where: { id: product.id },
+      relations: ["variants"]
+    });
+
+    res.json(productCompleto);
+
+  } catch (error) {
+    console.error('❌', error);
+    res.status(500).json({ error: "Erro ao atualizar produto" });
+  }
 }

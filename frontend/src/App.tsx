@@ -9,7 +9,7 @@ import LoginComponent from "./components/LoginComponent";
 import CadastroComponent from "./components/CadastroComponent";
 import MainPage from "./pages/MainPage";
 import { ProductCatalog } from "./components/ProductCatalog";
-import { CreateProduct } from "./components/CreateProduct";
+import { CreateProduct } from "./components/ProductForm";
 import { ProductDetails } from "./components/ProductDetails";
 import { AdminPanel } from "./components/AdminPanel";
 import { Checkout } from "./components/Checkout";
@@ -30,7 +30,7 @@ function App() {
           <Route path="/cadastro" element={<CadastroComponent />} />
           <Route path="/" element={<MainPage />} />
           <Route path="/catalogo" element={<ProductCatalog />} />
-          <Route path="/cadastroProduct" element={<CreateProduct />} />
+          <Route path="/cadastroProduct/:id?" element={<CreateProduct />} />
           <Route path="/produto/:id" element={<ProductDetails />} />
           <Route path="/admin" element={<AdminPanel/>}/>
         </Routes>

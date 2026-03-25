@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import '../css/CreateProduct.css';
 import { useAuth } from '../context/AuthContext';
 
@@ -23,6 +23,9 @@ export function CreateProduct() {
   const [image, setImage] = useState<File | null>(null);
   const API_URL = import.meta.env.VITE_API_URL;
   const { token, user, isAuthenticated } = useAuth();
+  const { id } = useParams();
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [product, setProduct] = useState<any>(null);
 
  useEffect(() => {
     if (!isAuthenticated || user?.role !== 'admin') {
@@ -31,6 +34,24 @@ export function CreateProduct() {
       return; 
     }
   }, [isAuthenticated, user, navigate]);
+
+  useEffect(() => {
+  if (id) {
+    fetch(`${API_URL}/products/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        setProduct(data);  // ← Salva produto completo
+        setName(data.name);
+        setDescription(data.description || '');
+        setPrice(data.price.toString());
+        setDiscount((data.discount || 0).toString());
+        setColorGroups(groupByColor(data.variants || []));
+        setImagePreview(data.imageUrl);  // ← Preview original
+      })
+      .catch(console.error);
+  }
+}, [id]);
+
 
   // Agora agrupamos por cor!
   const [colorGroups, setColorGroups] = useState<ColorGroup[]>([
@@ -57,72 +78,100 @@ export function CreateProduct() {
   };
 
   // Atualiza o tamanho ou estoque dentro de uma cor
-  const handleSizeChange = (colorIndex: number, sizeIndex: number, field: keyof SizeStock, value: string | number) => {
-    const newGroups = [...colorGroups];
-    newGroups[colorIndex].sizes[sizeIndex] = { ...newGroups[colorIndex].sizes[sizeIndex], [field]: value };
-    setColorGroups(newGroups);
-  };
+  const handleSizeChange = (colorIndex: number, sizeIndex: number, field: keyof SizeStock, value: string) => {
+  const newGroups = [...colorGroups];
+  
+  if (field === 'stockQuantity') {
+    const numValue = Math.max(0, Number(value) || 0);  // ← NUNCA negativo
+    newGroups[colorIndex].sizes[sizeIndex].stockQuantity = numValue;
+  } else {
+    newGroups[colorIndex].sizes[sizeIndex].size = value;  // ← size é string
+  }
+  
+  setColorGroups(newGroups);
+};
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!image) {
-      alert("A imagem é obrigatória!");
-      return;
-    }
+  if (!id && !image) {  // Imagem só no CREATE
+    alert("Imagem obrigatória!");
+    return;
+  }
 
-    // A mágica: Transforma o nosso agrupamento visual de volta pro formato que o backend exige
-    // Ex: Se Azul tem P(10) e M(5), vira [{color: 'Azul', size: 'P', stockQuantity: 10}, {color: 'Azul', size: 'M', stockQuantity: 5}]
-    const flattenedVariants = colorGroups.flatMap(group => 
-      group.sizes.map(sizeObj => ({
-        color: group.color,
-        size: sizeObj.size,
-        stockQuantity: sizeObj.stockQuantity
-      }))
+  // ✅ FLATENA VARIANTS ATUAL (substitui tudo)
+  const flattenedVariants = colorGroups
+    .filter(group => group.color.trim())  // Remove cores vazias
+    .flatMap(group => 
+      group.sizes
+        .filter(s => s.stockQuantity >= 0)  // Remove estoque inválido
+        .map(sizeObj => ({
+          color: group.color,
+          size: sizeObj.size,
+          stockQuantity: Number(sizeObj.stockQuantity)
+        }))
     );
 
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('description', description);
-    formData.append('price', price);
-    formData.append('discount', discount || '0');
-    formData.append('image', image);
-    formData.append('variants', JSON.stringify(flattenedVariants));
+  console.log('📤 SALVANDO:', { name, price, variants: flattenedVariants });
 
-    try { 
-      console.log({token})
-      const response = await fetch(`${API_URL}/products`, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${token}` 
-          },
-        body: formData,
-      });
+  const formData = new FormData();
+  formData.append('name', name);
+  formData.append('description', description);
+  formData.append('price', price);
+  formData.append('discount', discount || '0');
+  formData.append('variants', JSON.stringify(flattenedVariants));
+  
+  if (image) formData.append('image', image);
 
-      if (response.ok) {
-        alert('Produto criado com sucesso na Bereshit!');
-        navigate('/catalogo'); // Manda de volta pro catálogo pra ver como ficou
-      } else {
-        const errorData = await response.json();
-        console.error("Erros:", errorData);
-        alert('Erro ao criar produto. Olhe o console.');
-      }
-    } catch (error) {
-      console.error(error);
-      alert('Erro de conexão com o servidor.');
+  const url = id ? `${API_URL}/products/${id}` : `${API_URL}/products`;
+  const method = id ? 'PUT' : 'POST';
+
+  try {
+    const res = await fetch(url, {
+      method,
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: formData,
+    });
+
+    if (res.ok) {
+      alert(id ? 'Atualizado!' : 'Criado!');
+      navigate('/admin');
+    } else {
+      const errorData = await res.json();
+      console.error('❌ Backend:', errorData);
+      alert(`Erro: ${errorData.error}`);
     }
-  };
+  } catch (error) {
+    console.error('❌ Network:', error);
+    alert('Erro de conexão.');
+  }
+};
+ const groupByColor = (variants: any[]) => {
+  const groups: ColorGroup[] = [];
+  variants.forEach(v => {
+    let group = groups.find(g => g.color === v.color);
+    if (!group) {
+      group = { color: v.color, sizes: [] };
+      groups.push(group);
+    }
+    group.sizes.push({ 
+      size: v.size, 
+      stockQuantity: Math.max(0, v.stockQuantity) // ← Corrige negativos do banco
+    });
+  });
+  return groups.length ? groups : [{ color: '', sizes: [{ size: 'P', stockQuantity: 0 }] }];
+};
 
   return (
     <div className="create-product-container">
       <button className="btn-back-form" onClick={() => navigate('/catalogo')}>← Voltar</button>
-      <h2 className="title">Cadastrar Novo Produto</h2>
+      <h2 className="title">{id ? 'Editar Produto' : 'Cadastrar Novo Produto'}</h2>
       
       <form onSubmit={handleSubmit} className="product-form">
         
         <div className="form-group">
           <label>Nome da Peça:</label>
-          <input type="text" value={name} onChange={e => setName(e.target.value)} required />
+          <input type="text" value={name} onChange={e => setName(e.target.value)} required={!id} />
         </div>
 
         <div className="form-group">
@@ -133,7 +182,7 @@ export function CreateProduct() {
         <div className="form-row">
           <div className="form-group">
             <label>Preço (R$):</label>
-            <input type="number" step="0.01" value={price} onChange={e => setPrice(e.target.value)} required />
+            <input type="number" step="0.01" value={price} onChange={e => setPrice(e.target.value)} required={!id} />
           </div>
           <div className="form-group">
             <label>Desconto (%):</label>
@@ -141,10 +190,29 @@ export function CreateProduct() {
           </div>
         </div>
 
-        <div className="form-group">
-          <label>Imagem do Produto:</label>
-          <input type="file" accept="image/*" onChange={e => setImage(e.target.files ? e.target.files[0] : null)} required />
-        </div>
+  <div className="form-group">
+  <label>Imagem do Produto:</label>
+  <input 
+  type="file" 
+  accept="image/*" 
+  onChange={e => {
+    const file = e.target.files ? e.target.files[0] : null;
+    setImage(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => setImagePreview(e.target?.result as string);
+      reader.readAsDataURL(file);
+    } else if (product?.imageUrl) {
+      setImagePreview(product.imageUrl);  // ← Volta imagem original
+    }
+  }} 
+  required={!id}                                
+/>
+  {imagePreview && (
+    <img src={imagePreview} alt="Preview" className="image-preview" />
+  )}
+</div>
+
 
         <div className="variants-section">
           <h3>Cores e Tamanhos (Estoque)</h3>
@@ -158,7 +226,7 @@ export function CreateProduct() {
                   placeholder="Ex: Azul Marinho" 
                   value={group.color} 
                   onChange={e => handleColorChange(colorIndex, e.target.value)} 
-                  required 
+                  required={!id} 
                 />
               </div>
 
@@ -169,7 +237,7 @@ export function CreateProduct() {
                     <select 
                       value={sizeObj.size} 
                       onChange={e => handleSizeChange(colorIndex, sizeIndex, 'size', e.target.value)} 
-                      required 
+                      required={!id} 
                     >
                     <option value="P">P</option>
                     <option value="M">M</option>
@@ -177,12 +245,12 @@ export function CreateProduct() {
                     <option value="GG">GG</option>
                     </select>
                     <input 
-                      type="number" 
-                      placeholder="Qtd no Estoque" 
-                      value={sizeObj.stockQuantity || ''} 
-                      onChange={e => handleSizeChange(colorIndex, sizeIndex, 'stockQuantity', Number(e.target.value))} 
-                      required 
-                    />
+  type="number" 
+  placeholder="Qtd no Estoque" 
+  value={sizeObj.stockQuantity || 0} 
+  // ← NUNCA negativo
+  onChange={e => handleSizeChange(colorIndex, sizeIndex, 'stockQuantity', e.target.value)}
+/>
                   </div>
                 ))}
                 <button 
