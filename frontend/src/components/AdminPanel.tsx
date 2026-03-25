@@ -94,15 +94,19 @@ export function AdminPanel() {
                       {totalStock} un
                     </span>
                   </td>
-                  <td className="admin-actions">
-                    <button onClick={() => navigate(`/cadastroProduct/${product.id}`)}>Editar</button>
+                  <td className="admin-actions-cell" style={{ textAlign: 'center' }}>
+                  <div className="admin-actions">
+
+                    <button   className="btn-edit-admin"onClick={() => navigate(`/cadastroProduct/${product.id}`)}>Editar</button>
                     <button 
                       className="btn-delete-admin" 
                       onClick={() => handleDelete(product.id as string)}
                     >
                       Excluir
                     </button>
+                  </div>
                   </td>
+                  
                 </tr>
               )
             })}

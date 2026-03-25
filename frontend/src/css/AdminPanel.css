@@ -72,7 +72,7 @@
 .admin-table td {
     padding: 15px 20px;
     border-bottom: 1px solid #eee;
-    vertical-align: middle;
+    vertical-align: middle!important;
     color: #444;
 }
 
@@ -117,9 +117,13 @@
 
 .admin-actions {
     display: flex;
-    gap: 8px;           /* ✅ Gap menor */
-    flex-wrap: nowrap;  /* ✅ Não quebra */
-    min-width: 140px;   /* ✅ Espaço fixo */
+    gap: 8px;
+    flex-wrap: nowrap;
+    min-width: 140px;
+  /* ✅ Centraliza container */
+  align-items: center;      /* Alinha os botões verticalmente entre si */
+    justify-content: center;   /* Centraliza horizontalmente na célula */
+    height: 100%;
 }
 
 .btn-edit-admin, .btn-delete-admin {
