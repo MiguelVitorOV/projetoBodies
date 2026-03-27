@@ -1,13 +1,14 @@
-import { useEffect, useMemo} from 'react';
-import {useNavigate} from 'react-router-dom';
-import { useCart } from '../context/CartContext';
+import { useEffect, useMemo, useState} from 'react';
+import {useNavigate,} from 'react-router-dom';
+import { useCart, type CartItem } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import '../css/CheckOutPage.css';
-import { CheckoutForm } from './CheckoutForm';
+import { CheckoutForm } from './CheckoutForm';''
 
 export function Checkout() {
   const { cart, cartTotal } = useCart();
-
+  const [listaCarrinho, setListaCarrinho] = useState<CartItem[]>([]);
+  const [totalSnapshot, setTotalSnapshot] = useState(0)
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const LIMITE_VIP = 10000;
@@ -28,8 +29,15 @@ export function Checkout() {
     localStorage.removeItem('fromCheckout');
     return;  // Skip silencioso ✅
   }
+  
    
   }, [isAuthenticated, user, cart, navigate]);
+
+
+  useEffect(() => {
+    setListaCarrinho(cart)
+    setTotalSnapshot(cartTotal);
+  }, [])
 
 
   const formattedCheckoutItems = useMemo(() => {
@@ -64,7 +72,7 @@ const linkWhatsapp = `https://wa.me/${WHATSAPP_LOJA}?text=${mensagemWhats}`;
         <div className="checkout-summary">
           <h2>Resumo do seu pedido</h2>
           <div className="checkout-items-list">
-            {cart.map((item) => (
+            {listaCarrinho.map((item) => (
               <div key={item.id} className="checkout-item">
                 <img
                   src={item.imageUrl}
@@ -86,7 +94,7 @@ const linkWhatsapp = `https://wa.me/${WHATSAPP_LOJA}?text=${mensagemWhats}`;
 
           <div className="checkout-total-box">
             <span>Total a pagar:</span>
-            <span className="chk-total-value">R$ {cartTotal.toFixed(2)}</span>
+            <span className="chk-total-value">R$ {totalSnapshot.toFixed(2)}</span>
           </div>
         </div>
         <div className="checkout-payment-box">

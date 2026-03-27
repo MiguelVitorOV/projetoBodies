@@ -117,7 +117,7 @@ export function CheckoutForm({ userId, items, totalAmount }: CheckoutProps) {
   if (mensagem === 'cartao') {
     return (
       <div className="checkout-mensagem sucesso">
-        <p>🎉 Pagamento Aprovado! Pedido gerado com sucesso!</p>
+        <p>🎉 Pagamento Aprovado! Verifique o pedido no seu email!</p>
         <button onClick={resetar}>Voltar ao Catálogo</button>
       </div>
     );
