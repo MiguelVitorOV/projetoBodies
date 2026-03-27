@@ -6,6 +6,7 @@ import { OrderItem } from "../entity/OrderItem";
 import { ProductVariant } from "../entity/ProductVariant";
 import { item, orderItems, productVariant } from "../types/entityTypes";
 import crypto from 'crypto';
+import { decryptData } from '../middlewares/cryptoUtils';
 import { MercadoPagoConfig, Order as MPOrder, Payment} from 'mercadopago'; 
 import { enviarMensagemPedido } from '../services/whatsappService';
 const client = new MercadoPagoConfig({ accessToken: process.env.MP_BLA! });
@@ -55,18 +56,34 @@ export const criarPedido = async (req: Request, res: Response) => {
         order = await orderRepository.save(order);
 
         const idempotencyKey = crypto.randomUUID(); 
-
+        const [firstName, ...rest] = user.name.trim().split(' ');
+        const lastName = rest.join(' ') || firstName; // se só tem 1 palavra, repete
         const mpBody = {
   type: "online",
   processing_mode: "automatic", 
   external_reference: `order_${order.id}`,
   total_amount: Number(total).toFixed(2), 
-  payer: paymentData.payer,  
-//   payer: {
-//     email: paymentData.payer?.email || user.email,
-//     first_name: "APRO", // ← FORÇA APROVAÇÃO NO SANDBOX
-//     last_name: paymentData.payer?.last_name || "Teste"
-//   },
+  //payer: paymentData.payer,  
+  
+  payer: {
+    email: paymentData.payer?.email || user.email,
+    first_name : firstName,
+    //first_name: "APRO", // ← FORÇA APROVAÇÃO NO SANDBOX
+    last_name: lastName,
+
+    identification: {
+    type: "CPF",
+    number: decryptData(user.cpf)  // vem do banco, não do frontend
+  },
+    
+  },
+  
+
+   items: orderItems.map(item => ({
+    title: item.variant.product.name,
+    quantity: item.quantity,
+    unit_price: Number(item.price.toFixed(2)).toString(),
+  })),
   transactions: {
     payments: [{
 
