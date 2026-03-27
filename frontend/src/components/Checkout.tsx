@@ -29,11 +29,6 @@ export function Checkout() {
     return;  // Skip silencioso ✅
   }
    
-
-    if (cart.length === 0) {  // ← VERIFICA ORIGEM
-    alert("Seu carrinho está vazio.");
-    navigate('/catalogo');
-  }
   }, [isAuthenticated, user, cart, navigate]);
 
 
@@ -55,7 +50,7 @@ export function Checkout() {
 const linkWhatsapp = `https://wa.me/${WHATSAPP_LOJA}?text=${mensagemWhats}`;
 
 
-  if (!isAuthenticated || !user || cart.length === 0) return null;
+  if (!isAuthenticated || !user) return null;
 
   return (
     <div className="checkout-page">

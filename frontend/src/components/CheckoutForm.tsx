@@ -46,7 +46,7 @@ export function CheckoutForm({ userId, items, totalAmount }: CheckoutProps) {
           aprovado.current = true;       // ← trava para não executar duas vezes
           clearInterval(intervalo);
           setPixData(null);
-
+          clearCart();
           setMensagem('cartao');         // ← NÃO limpa o carrinho aqui!
         }
       } catch (e) {
@@ -87,6 +87,7 @@ export function CheckoutForm({ userId, items, totalAmount }: CheckoutProps) {
           ticket_url: data.ticket_url,
         });
       } else {
+        clearCart();
         setMensagem('cartao'); // cartão aprovado direto
       }
 
