@@ -39,7 +39,7 @@ const MainContent = () => {
           <div className="caixinha">
             <span className="material-symbols-outlined benefit-icon">inventory_2</span>
             <h3>SEM QUANTIDADE MÍNIMA</h3>
-            <h4>Compre de 1 até 1000 peças!</h4>
+            <h4>Compre de 1 até 100.000 peças!</h4>
           </div>
           
           <div className="separador"></div>
@@ -52,11 +52,6 @@ const MainContent = () => {
           
           <div className="separador"></div>
           
-          <div className="caixinha">
-            <span className="material-symbols-outlined benefit-icon">credit_card</span>
-            <h3>ATÉ 3X SEM JUROS</h3>
-            <h4>No cartão de crédito</h4>
-          </div>
         </div>
       </section>
 
