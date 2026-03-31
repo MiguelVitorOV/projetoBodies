@@ -66,6 +66,17 @@ const linkWhatsapp = `https://wa.me/${WHATSAPP_LOJA}?text=${mensagemWhats}`;
         <h1>Finalizar Compra</h1>
         <p>Ambiente 100% Seguro. Finalize seu pedido, {firstName}!</p>
       </div>
+      <div className="checkout-info-entrega">
+  <span className="checkout-info-icon">🚚</span>
+  <div>
+    <strong>Como funciona a entrega?</strong>
+    <p>
+  Após a confirmação do pagamento, nossa loja entrará em contato pelo{' '}
+  <span style={{ fontWeight: 'bold', color: '#4193ae' }}>WhatsApp ou e-mail</span>{' '}
+  para combinar a melhor forma de entrega para você.
+</p>
+  </div>
+</div>
 
       <div className="checkout-container">
 
