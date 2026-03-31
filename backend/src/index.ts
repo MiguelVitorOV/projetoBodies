@@ -10,7 +10,7 @@ AppDataSource.initialize().then(() => {
     // ✅ Configuração de CORS (Habilite o que for necessário para seu front-end)
     // app.use(cors());
         app.use(cors({
-  origin: 'https://projeto-bodies.vercel.app/',
+  origin: 'https://projeto-bodies.vercel.app',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
