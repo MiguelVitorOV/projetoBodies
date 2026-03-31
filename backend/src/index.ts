@@ -9,11 +9,10 @@ AppDataSource.initialize().then(() => {
     const app = express();
 
     app.use(cors({
-  origin: '', // O '' libera acesso para QUALQUER site. Ideal para a correria da entrega de amanhã!
+  origin: 'https://projeto-bodies.vercel.app',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
     // O MESMO CAMINHO DO MULTER (Saindo do backend e indo pra uploads)
     const caminhoDasImagens = path.resolve(process.cwd(), "..", "uploads");
     app.use("/uploads", express.static(caminhoDasImagens));
