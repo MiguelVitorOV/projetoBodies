@@ -23,16 +23,37 @@ const schema = yup.object().shape({
 
 export const createProduct = async (req: Request, res: Response) => {
     try {
-        const { name, description, price, variants, discount } = req.body;
+        const { name, description, price, variants, discount } = req.body as ProductRequestDTO;
         const file = req.file;
 
-        if (!file) return res.status(400).json({ error: "Imagem é obrigatória" });
+        let parsedVariants: ProductVariant[];
+        try {
+            parsedVariants = JSON.parse(variants);
+        } catch (e) {
+            return res.status(400).json({ error: "Formato de variantes inválido (JSON esperado)" });
+        }
+
+        if (!file) {
+            return res.status(400).json({ error: "Imagem do produto é obrigatória" });
+        }
 
         // 1. Gerar nome único para o arquivo
         const fileExt = file.originalname.split('.').pop();
         const fileName = `${Date.now()}-${Math.floor(Math.random() * 1000)}.${fileExt}`;
         const filePath = `product-images/${fileName}`;
 
+        const productData = {
+            name,
+            description,
+            price: parseFloat(price),
+            variants: parsedVariants, 
+            discount: discount ? parseFloat(discount) : 0,
+            imageUrl: "" 
+        };
+
+         await schema.validate(productData, { abortEarly: false });
+
+        
         // 2. Upload para o Supabase Storage
         const { data: uploadData, error: uploadError } = await supabase.storage
             .from('products') // Nome do seu bucket
@@ -51,10 +72,7 @@ export const createProduct = async (req: Request, res: Response) => {
         // 4. Salvar no Banco de Dados
         const productRepository = AppDataSource.getRepository(Product);
         const product = productRepository.create({
-            name,
-            description,
-            price: parseFloat(price),
-            discount: discount ? parseFloat(discount) : 0,
+             ...productData, 
             imageUrl: publicUrl, // URL do Supabase
             // ... variantes (mantenha sua lógica de parse aqui)
         });
@@ -64,7 +82,10 @@ export const createProduct = async (req: Request, res: Response) => {
         res.status(201).json(product);
 
     } catch (error) {
-        console.error(error);
+        if (error instanceof yup.ValidationError) {
+            return res.status(400).json({ errors: error.errors });
+        }
+        console.error(error); 
         res.status(500).json({ error: "Erro ao criar produto" });
     }
 }
@@ -187,17 +208,18 @@ export const atualizarProduto = async (req: Request, res: Response) => {
 
     await productRepository.save(product);
 
+     await variantRepository.delete({ product: { id: product.id } });
+
+
     // ✅ Atualização de variantes (Lógica original mantida)
     if (variants) {
-      await variantRepository.delete({ product: { id: product.id } });
-      
       const parsedVariants = JSON.parse(variants);
       for (const vData of parsedVariants) {
         const newVariant = variantRepository.create({
           color: vData.color,
           size: vData.size,
           stockQuantity: vData.stockQuantity,
-          product: product
+          product: product  // ← REFERÊNCIA ao produto salvo
         });
         await variantRepository.save(newVariant);
       }
