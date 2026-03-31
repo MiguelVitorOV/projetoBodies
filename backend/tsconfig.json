@@ -2,7 +2,11 @@
   "compilerOptions": {
     "target": "es2021",
     "module": "commonjs",
-    "lib": ["es2021"], 
+    "lib": [
+      "es2021",
+      "DOM",         // Adicionado para reconhecer tipos de Web API que o SDK do Supabase usa
+      "DOM.Iterable" // Recomendado ao usar DOM
+    ], 
     "allowJs": true,
     "outDir": "./dist",
     "rootDir": "./src",
@@ -10,6 +14,7 @@
     "noImplicitAny": false,
     "esModuleInterop": true,
     "resolveJsonModule": true,
+    "skipLibCheck": true,    // ✅ CRUCIAL: Ignora erros de tipagem dentro da pasta node_modules
     "types": ["node"], 
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
